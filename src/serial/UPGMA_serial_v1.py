@@ -18,7 +18,7 @@ def printMat(d):
         print()
     print()        
 
-def matMin(d):
+def matMinLoc(d):
     smallest = None
     smallest_index = None
     
@@ -100,7 +100,7 @@ cl_hist = []
 cl_hist.append((copy.deepcopy(cl)))
 d_red = copy.deepcopy(d)
 for loop in range(5):
-    minLoc = matMin(d_red)[1]
+    minLoc = matMinLoc(d_red)[1]
     greaterCombLoc = max(minLoc)
     #print("Greater comb location = " + str(greaterCombLoc))
     grpLeaf(cl, minLoc[0], minLoc[1])
