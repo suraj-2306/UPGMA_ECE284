@@ -3,7 +3,7 @@
 
 using namespace std;
 
-float distMat[MATDIM][MATDIM] = {0,0,0,0,0,0,0,
+int distMat[MATDIM][MATDIM] = {0,0,0,0,0,0,0,
                                 19,0,0,0,0,0,0,
                                 27,31,0,0,0,0,0,
                                 8,18,26,0,0,0,0,
@@ -11,7 +11,7 @@ float distMat[MATDIM][MATDIM] = {0,0,0,0,0,0,0,
                                 18,1,32,17,35,0,0,
                                 13,13,29,14,28,12,0};
 
-float opMat[MATDIM][MATDIM];
+int opMat[MATDIM][MATDIM];
 
 int clusterLst[MATDIM][MATDIM];
 
@@ -26,7 +26,7 @@ void initClusterLst(int size) {
 void initOpMat(int size) {
   for (int i = 0; i < size; i++) {
     for (int j = 0; j < size; j++)
-      opMat[i][j] = distMat[i][j];
+      opMat[i][j] = distMat[i][j]*1000;
   }
 }
 
@@ -162,7 +162,7 @@ void printOpMat(int size) {
   printf("Operation Matrix: \n");
   for (int i = 0; i < size; i++) {
     for (int j = 0; j < size; j++) {
-      printf("%0.1f ", opMat[i][j]);      
+      printf("%2d ", opMat[i][j]);      
     }
     printf("\n");
   }
