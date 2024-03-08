@@ -11,10 +11,10 @@ int clusterLst[MATDIM][MATDIM];
 void initClusterLst(int size) {
   for (int i = 0; i < size; i++) {
     clusterLst[i][0] = i;
-    printf("%d", clusterLst[i][0]);
   }
 }
 int main() {
+  initClusterLst(MATDIM);
   printf("UPGMA");
   return 0;
 }
