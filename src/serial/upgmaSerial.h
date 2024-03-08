@@ -1,4 +1,4 @@
-#define MATDIM 5
+#define MATDIM 7
 
 // extern int distMat[MATDIM][MATDIM];
 
@@ -14,12 +14,18 @@ void mirrorMat(int size);
 // prototype as required.
 void initClusterLst(int size);
 
+// Deep copy of distance matrix into op matrix
+void initOpMat(int size); 
+
 // Return the indexes corresponding to the smallest value in the matrix.
 // Return smallest value if required.
 int *matMinLoc(int size);
 
 // Returns the maximum from an array. Use standard functions instead?
-int arrMax(int size);
+int arrMax(int d[MATDIM], int size);
+
+// Returns the minimum from an array. Use standard functions instead?
+int arrMin(int d[MATDIM], int size);
 
 // Combine the 2 clusters in clusterList that contain ele1 and ele2, IF they
 // belong to separate clusters
@@ -35,6 +41,9 @@ void matEntryUpdate(int size, int ele1, int ele2);
 
 // Print the 2D distance matrix
 void printMat(int size);
+
+// Print 2D operation matrix
+void printOpMat(int size);
 
 // Print the cluster list
 void printClusterLst(int size);
