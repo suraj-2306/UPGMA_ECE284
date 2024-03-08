@@ -1,10 +1,10 @@
 // Accepts a 2D matrix and returns a matrix mirror along the left diagonal
-int** mirrorMat (int** d, int size);
+void mirrorMat (int** d, int size);
 
 // Returns a list of lists of length equal to the dimension of (square) distance matrix.
 // Can implement as a fixed 2D matrix, or linked list.
 // Update the prototype as required.
-int** initClusterLst (int size);
+void initClusterLst (int size);
 
 // Return the indexes corresponding to the smallest value in the matrix.
 // Return smallest value if required.
