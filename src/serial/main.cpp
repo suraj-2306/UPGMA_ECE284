@@ -9,6 +9,12 @@ int opMat[MATDIM][MATDIM];
 
 int clusterLst[MATDIM][MATDIM];
 
+void initClusterLst(int size) {
+  for (int i = 0; i < size; i++) {
+    clusterLst[i][0] = i;
+  }
+}
+
 int *matMinLoc(int d[MATDIM][MATDIM], int size) {
   int min = __INT32_MAX__;
   static int min_loc[2];
