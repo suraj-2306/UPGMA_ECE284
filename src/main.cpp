@@ -173,82 +173,109 @@ int main() {
 	int *minLoc;
 	int greaterCombLoc;
 
-	mirrorDistMat(MATDIM);
+	//1. mirrorDistMat(MATDIM);
+	//void mirrorDistMat(int size) {
+	for (int itr1_i = 0; itr1_i < MATDIM; itr1_i++) {
+		for (int itr1_j = 0; itr1_j < itr1_i; itr1_j++)
+			distMat[itr1_j][itr1_i] = distMat[itr1_i][itr1_j];
+	}
+	//}
 
-	initClusterLst(MATDIM);
+	//2. initClusterLst(MATDIM);
+	//void initClusterLst(int size) {
+	for (int itr2_i = 0; itr2_i < MATDIM; itr2_i++) {
+		for (int itr2_j = 0; itr2_j < MATDIM; itr2_j++) {
+			clusterLst[itr2_i][itr2_j] = (itr2_j) ? -1 : itr2_i;
+		}
+	}
+	//}
 
-	initOpMat(MATDIM);
+	//initOpMat(MATDIM);
+	//void initOpMat(int size) {
+	for (int itr3_i = 0; itr3_i < MATDIM; itr3_i++) {
+		for (int itr3_j = 0; itr3_j < MATDIM; itr3_j++)
+			opMat[itr3_i][itr3_j] = distMat[itr3_i][itr3_j]*1000;
+	}
+	//}
 
 	printOpMat(MATDIM);
 
 	for (int k = 0; k < MATDIM-2; k++) {
-		int itr_size = MATDIM;
-		int min = __INT32_MAX__;
-		int min_loc[2];
-		for (int itr_i = 0; itr_i < itr_size; itr_i++) {
-			for (int itr_j = 0; itr_j < itr_size; itr_j++) {
-				if (opMat[itr_i][itr_j] < min && opMat[itr_i][itr_j] != 0) {
-					min = opMat[itr_i][itr_j];
-					min_loc[0] = itr_i;
-					min_loc[1] = itr_j;
+		//minLoc = matMinLoc(MATDIM);
+		//int *matMinLoc(int size) {
+		int itr4_min = __INT32_MAX__;
+		int itr4_min_loc[2];
+		for (int itr4_i = 0; itr4_i < MATDIM; itr4_i++) {
+			for (int itr4_j = 0; itr4_j < MATDIM; itr4_j++) {
+				if (opMat[itr4_i][itr4_j] < itr4_min && opMat[itr4_i][itr4_j] != 0) {
+					itr4_min = opMat[itr4_i][itr4_j];
+					itr4_min_loc[0] = itr4_i;
+					itr4_min_loc[1] = itr4_j;
 				}
 			}
 		}
-		//return min_loc;
-		minLoc = min_loc;
-		//minLoc = matMinLoc(MATDIM);
+		minLoc = itr4_min_loc;
+		//}
 		printf("Minx %d, Miny %d\n", minLoc[0], minLoc[1]);
-		int itr_arr_max = 0;
-		for (int itr_i = 0; itr_i < 2; itr_i++)
-			if (minLoc[itr_i] > itr_arr_max)
-				itr_arr_max = minLoc[itr_i];
-		//return itr_arr_max;
 		//greaterCombLoc = arrMax(minLoc, 2);
-		greaterCombLoc = itr_arr_max;
+		//int arrMax(int d[MATDIM], int size) {
+		int itr5_arr_max = 0;
+		for (int itr5_i = 0; itr5_i < 2; itr5_i++)
+			if (minLoc[itr5_i] > itr5_arr_max)
+				itr5_arr_max = minLoc[itr5_i];
+		//return itr5_arr_max;
+		greaterCombLoc = itr5_arr_max;
+		//}
 
 		//grpLeaf(MATDIM, minLoc[0], minLoc[1]);
 		//void grpLeaf(int size, int ele1, int ele2) {
-
-		int ele1 =  minLoc[0];
-		int ele2 =  minLoc[1];
-		//int *cluster_locs;
-		//cluster_locs = findCluster(itr_size, ele1, ele2);
+		int *itr6_cluster_locs;
+		//itr6_cluster_locs = findCluster(MATDIM, minLoc[0], minLoc[1]);
 		//int *findCluster(int size, int ele1, int ele2) {
-		//static int cluster_locs[2];
-		int cluster_locs[2];
-		int itr3_find_count = 0;
-		for (int itr3_i = 0; itr3_i < MATDIM; itr3_i++) {
-			for (int itr3_j = 0; itr3_j < MATDIM; itr3_j++) {
-				if (ele1 == clusterLst[itr3_i][itr3_j]) {
-					cluster_locs[0] = itr3_i;
-					itr3_find_count++;
-				} else if (ele2 == clusterLst[itr3_i][itr3_j]) {
-					cluster_locs[1] = itr3_i;
-					itr3_find_count++;
+		int itr7_cluster_locs[2];
+		int itr7_find_count = 0;
+		int itr7_return_flag = 0;
+		for (int itr7_i = 0; itr7_i < MATDIM; itr7_i++) {
+			for (int itr7_j = 0; itr7_j < MATDIM; itr7_j++) {
+				if (minLoc[0] == clusterLst[itr7_i][itr7_j]) {
+					itr7_cluster_locs[0] = itr7_i;
+					itr7_find_count++;
+				} else if (minLoc[1] == clusterLst[itr7_i][itr7_j]) {
+					itr7_cluster_locs[1] = itr7_i;
+					itr7_find_count++;
 				}
 
-				if (itr3_find_count == 2)
+				if (itr7_find_count == 2) {
+					//return itr7_cluster_locs;
+					itr6_cluster_locs = itr7_cluster_locs;
+					itr7_return_flag = 1;
 					break;
-				//return cluster_locs;
+				}
+			}
+			if(itr7_return_flag == 1) {
+				break;
 			}
 		}
 
-		//return cluster_locs;
+		//return itr7_cluster_locs;
+		if(itr7_return_flag == 0 ) {
+			itr6_cluster_locs = itr7_cluster_locs;
+		}
 		//}
 
-		if (cluster_locs[0] != cluster_locs[1]) {
-			int itr2_j;
-			for (itr2_j = 0; itr2_j < itr_size; itr2_j++) {
-				if (clusterLst[cluster_locs[0]][itr2_j] == -1)
+		if (itr6_cluster_locs[0] != itr6_cluster_locs[1]) {
+			int itr6_j;
+			for (itr6_j = 0; itr6_j < MATDIM; itr6_j++) {
+				if (clusterLst[itr6_cluster_locs[0]][itr6_j] == -1)
 					break;  
 			}
-			for (int itr_k = 0; itr_k < itr_size; itr_k++) {
-				int ele = clusterLst[cluster_locs[1]][itr_k];
-				if (ele == -1)
+			for (int itr6_k = 0; itr6_k < MATDIM; itr6_k++) {
+				int itr6_ele = clusterLst[itr6_cluster_locs[1]][itr6_k];
+				if (itr6_ele == -1)
 					break;
-				clusterLst[cluster_locs[0]][itr2_j] = ele;
-				clusterLst[cluster_locs[1]][itr_k] = -1;
-				itr2_j++;
+				clusterLst[itr6_cluster_locs[0]][itr6_j] = itr6_ele;
+				clusterLst[itr6_cluster_locs[1]][itr6_k] = -1;
+				itr6_j++;
 			}
 		} 
 		//}
@@ -256,70 +283,85 @@ int main() {
 		for (int i = 0; i < MATDIM; i++) {
 			for (int j = 0; j < MATDIM; j++) {
 				if (opMat[i][j] != 0) {
-					bool condition1, condition2;
-					condition1 = false;
-					condition2 = false;
-					for (int itr3_i = 0; itr3_i < 2; itr3_i++)
-						if (i == minLoc[itr3_i])
-							condition1 = true;
-					for (int itr3_i = 0; itr3_i < 2; itr3_i++)
-						if (j == minLoc[itr3_i])
-							condition2 = true;
+					bool itr8_condition0 = false ;
+					bool itr8_condition1 = false ;
+					//int isEleInArr (int minLoc[MATDIM], int 2, int i) {
+					for (int itr8_i = 0; itr8_i < 2; itr8_i++)
+						if (i == minLoc[itr8_i])
+							//return 1;
+							itr8_condition0 = true;
+					//}
+					for (int itr8_i = 0; itr8_i < 2; itr8_i++)
+						if (j == minLoc[itr8_i])
+							//return 1;
+							itr8_condition1 = true;
+					//}
 					//if (isEleInArr(minLoc, 2, i) || isEleInArr(minLoc, 2, j)) {
-					if ( condition1 || condition2 ) {
+					if ( itr8_condition0 || itr8_condition1 ) {
 						if (i == greaterCombLoc || j == greaterCombLoc)
 							opMat[i][j] = 0;
 						else
-							if (i != j)
-								matEntryUpdate(MATDIM, i, j);
-						//void matEntryUpdate(int size, int i, int j) {
-						int *itr4_cluster_loc;
-						//int *findCluster(int size, int i, int j) {
-						int cluster_locs[2];
-						int itr5_find_count = 0;
-						for (int itr5_i = 0; itr5_i < MATDIM; itr5_i++) {
-							for (int itr5_j = 0; itr5_j < MATDIM; itr5_j++) {
-								if (i == clusterLst[itr5_i][itr5_j]) {
-									cluster_locs[0] = itr5_i;
-									itr5_find_count++;
-								} else if (j == clusterLst[itr5_i][itr5_j]) {
-									cluster_locs[1] = itr5_i;
-									itr5_find_count++;
+							if (i != j) {
+								//matEntryUpdate(MATDIM, i, j);
+								//void matEntryUpdate(int size, int ele1, int ele2) {
+								int *itr9_cluster_loc;
+								//itr9_cluster_loc = findCluster(MATDIM, i, j);
+								//int *findCluster(int size, int ele1, int ele2) {
+								int itr10_cluster_locs[2];
+								int itr10_find_count = 0;
+								int itr10_return_flag = 0;
+								for (int itr10_i = 0; itr10_i < MATDIM; itr10_i++) {
+									for (int itr10_j = 0; itr10_j < MATDIM; itr10_j++) {
+										if (i == clusterLst[itr10_i][itr10_j]) {
+											itr10_cluster_locs[0] = itr10_i;
+											itr10_find_count++;
+										} else if (j == clusterLst[itr10_i][itr10_j]) {
+											itr10_cluster_locs[1] = itr10_i;
+											itr10_find_count++;
+										}
+
+										if (itr10_find_count == 2) {
+											//return itr10_cluster_locs;
+											itr10_return_flag = 1;
+											itr9_cluster_loc = itr10_cluster_locs;
+											break;
+										}
+									}
+									if( itr10_return_flag == 1 ) {
+										break;
+									}
 								}
 
-								if (itr5_find_count == 2)
-									break;
-								//return cluster_locs;
+								//return itr10_cluster_locs;
+								if( itr10_return_flag == 0 ) {
+									itr9_cluster_loc = itr10_cluster_locs;
+								}
+								//}
+								int itr9_distSum = 0;
+								int itr9_distCount = 0;
+								int itr9_e1_iter = 0;
+								int itr9_e2_iter = 0;  
+
+								while (clusterLst[itr9_cluster_loc[0]][itr9_e1_iter] != -1) {
+									itr9_e2_iter = 0;
+									while (clusterLst[itr9_cluster_loc[1]][itr9_e2_iter] != -1) {
+										itr9_distSum += distMat[clusterLst[itr9_cluster_loc[0]][itr9_e1_iter]][clusterLst[itr9_cluster_loc[1]][itr9_e2_iter]];
+										itr9_distCount++;
+										itr9_e2_iter++;
+									}
+									itr9_e1_iter++;
+								}
+
+								opMat[i][j] = itr9_distSum/itr9_distCount;
+								//}
 							}
-						}
-
-						//return cluster_locs;
-						//}
-						itr4_cluster_loc = cluster_locs;
-						int distSum = 0;
-						int distCount = 0;
-						int e1_iter = 0;
-						int e2_iter = 0;  
-
-						while (clusterLst[itr4_cluster_loc[0]][e1_iter] != -1) {
-							e2_iter = 0;
-							while (clusterLst[itr4_cluster_loc[1]][e2_iter] != -1) {
-								distSum += distMat[clusterLst[itr4_cluster_loc[0]][e1_iter]][clusterLst[itr4_cluster_loc[1]][e2_iter]];
-								distCount++;
-								e2_iter++;
-							}
-							e1_iter++;
-						}
-
-						opMat[i][j] = distSum/distCount;
-						//}
 					}
-				}
-				}
 			}
-			printClusterLst(MATDIM);
-			printOpMat(MATDIM);
+			}
 		}
-
-		return 0;
+		printClusterLst(MATDIM);
+		printOpMat(MATDIM);
 	}
+
+	return 0;
+}
