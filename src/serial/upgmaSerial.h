@@ -1,4 +1,4 @@
-#define MATDIM 7
+#define MATDIM 10
 
 // extern int distMat[MATDIM][MATDIM];
 
