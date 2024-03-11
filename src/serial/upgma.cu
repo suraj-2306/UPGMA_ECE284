@@ -63,24 +63,38 @@ UPGMA::ReadDistMat::ReadDistMat(uint32_t size) {
   }
 }
 
-void UPGMA::readFile(UPGMA::ReadDistMat *readDistMat) {
-  int i = 0;
-  int j = 0;
-  std::ifstream infile("distMat.txt");
-  std::string line;
-  while (std::getline(infile, line)) {
-    j = 0;
-    std::istringstream iss(line);
-    std::string token;
-    while (std::getline(iss, token, ',')) {
-      if (token != "") { // Skip empty tokens
-        readDistMat->distMat[getIndex(readDistMat->mat_dim, i, j)] =
-            std::stoi(token);
-        j++;
-      }
+void UPGMA::readFile(UPGMA::ReadDistMat* readDistMat) {
+    
+    printf("Reading from file\n");
+
+    std::string filename = "/home/aageshsomanathan/ECE284_UPGMA/src/serial/distMat.csv";
+    std::ifstream file(filename);
+    std::string line;    
+
+    if (!file.is_open()) {
+        std::cerr << "Error: Unable to open file " << filename << std::endl;
+        return;
     }
-    i++;
-  }
+
+    int i = 0;
+    int j = 0;
+
+    // Read each line of the CSV file
+    while (std::getline(file, line)) {
+        std::stringstream ss(line);
+        int num;
+        j = 0;
+        // Parse each element in the line
+        while (ss >> num) {
+            readDistMat->distMat[getIndex(readDistMat->mat_dim, i, j)] = num;
+            if (ss.peek() == ',') // Skip the comma
+                ss.ignore();
+            j++;
+        }
+        i++;
+    }
+
+    file.close();
 }
 
 void UPGMA::transferDistMat(UPGMA::ReadDistMat *readDistMat) {
