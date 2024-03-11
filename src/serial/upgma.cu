@@ -219,7 +219,7 @@ __global__ void buildUpgma(uint32_t mat_dim, uint32_t *d_distMat,
   int *minLoc;
   int greaterCombLoc;
 
-  if (tx < mat_dim && bx < mat_dim) {
+  if (tx < mat_dim && bx < tx) {
     // for (int itr1_i = 0; itr1_i < mat_dim; itr1_i++) {
     //     for (int itr1_j = 0; itr1_j < itr1_i; itr1_j++)
 // d_distMat[getIndexDev(mat_dim,itr1_j,itr1_i)] = d_distMat[getIndexDev(mat_dim,itr1_i,itr1_j)];
