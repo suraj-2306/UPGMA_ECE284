@@ -235,11 +235,11 @@ __global__ void buildUpgma(uint32_t mat_dim, uint32_t *d_distMat,
   // for (int itr2_i = 0; itr2_i < mat_dim; itr2_i++) {
   //   for (int itr2_j = 0; itr2_j < mat_dim; itr2_j++) {
   // d_clusterLst[getIndexDev(mat_dim,itr2_i,itr2_j)] = (itr2_j) ? -1 : itr2_i;
-  // itr2_i == tx
-  // itr2_j == bx
+  // itr2_j == tx
+  // itr2_i == bx
 
   if (tx < mat_dim && bx < mat_dim) {
-    d_clusterLst[getIndexDev(mat_dim, tx, bx)] = (bx) ? -1 : tx;
+    d_clusterLst[getIndexDev(mat_dim, bx, tx)] = (tx) ? -1 : bx;
   }
   //}
 
