@@ -7,7 +7,7 @@
 #include <sstream>
 //#include "timer.hpp"
 
-#define MATDIM 7
+#define MATDIM 100
 
 void printGpuProperties();
 uint32_t getIndex(uint32_t numCols, uint32_t i, uint32_t j);
