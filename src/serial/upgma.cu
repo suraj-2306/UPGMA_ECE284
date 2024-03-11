@@ -67,7 +67,7 @@ void UPGMA::readFile(UPGMA::ReadDistMat* readDistMat) {
     
     printf("Reading from file\n");
 
-    std::string filename = "/home/aageshsomanathan/ECE284_UPGMA/src/serial/distMat.csv";
+    std::string filename = "./../src/serial/distMat.csv";
     std::ifstream file(filename);
     std::string line;    
 
@@ -265,8 +265,7 @@ __global__ void buildUpgma(uint32_t mat_dim, uint32_t *d_distMat,
       int itr4_min_loc[2];
       for (int itr4_i = 0; itr4_i < mat_dim; itr4_i++) {
         for (int itr4_j = 0; itr4_j < mat_dim; itr4_j++) {
-          if (d_opMat[getIndexDev(mat_dim, itr4_i, itr4_j)] < itr4_min &&
-              d_opMat[getIndexDev(mat_dim, itr4_i, itr4_j)] != 0) {
+          if (d_opMat[getIndexDev(mat_dim, itr4_i, itr4_j)] < itr4_min && d_opMat[getIndexDev(mat_dim, itr4_i, itr4_j)] != 0) {
             itr4_min = d_opMat[getIndexDev(mat_dim, itr4_i, itr4_j)];
             itr4_min_loc[0] = itr4_i;
             itr4_min_loc[1] = itr4_j;
@@ -440,8 +439,8 @@ __global__ void buildUpgma(uint32_t mat_dim, uint32_t *d_distMat,
 void UPGMA::upgmaBuilder(UPGMA::ReadDistMat *readDistMat) {
 
   printf("upgmaBuilder invoked\n");
-  int numBlocks = 10; // i.e. number of thread blocks on the GPU
-  int blockSize = 10; // i.e. number of GPU threads per thread block
+  int numBlocks = 7; // i.e. number of thread blocks on the GPU
+  int blockSize = 7; // i.e. number of GPU threads per thread block
 
   buildUpgma<<<numBlocks, blockSize>>>(
       readDistMat->mat_dim, readDistMat->d_distMat, readDistMat->d_opMat,
