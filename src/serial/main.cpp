@@ -1,4 +1,3 @@
-#include "upgmaSerial.h"
 #include "upgma.cuh"
 #include <stdio.h>
 
