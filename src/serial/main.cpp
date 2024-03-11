@@ -18,14 +18,18 @@ int main(int argc, char** argv) {
 
     readDistMat  = new UPGMA::ReadDistMat(mat_dim);
 
-    for (int i = 0; i < MATDIM*MATDIM; i++)
-        readDistMat->distMat[i] = i;
+    // for (int i = 0; i < MATDIM*MATDIM; i++)
+    //     readDistMat->distMat[i] = i;
 
-    UPGMA::transferDistMat (readDistMat);
+    UPGMA::readFile(readDistMat);
 
-    UPGMA::upgmaBuilder (readDistMat);
+    UPGMA::transferDistMat(readDistMat);
+
+    UPGMA::upgmaBuilder(readDistMat);
 
     UPGMA::printDistMat(readDistMat);
+
+    UPGMA::printOpMat(readDistMat);
 
     UPGMA::clearDistMat(readDistMat);
 

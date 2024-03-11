@@ -5,8 +5,6 @@
  * Prints information for each available GPU device on stdout
  */
 
-#define MATDIM 10
-
 void printGpuProperties () {
     int nDevices;
 
@@ -64,6 +62,25 @@ UPGMA::ReadDistMat::ReadDistMat(uint32_t size) {
     if (err != cudaSuccess) {
         fprintf(stderr, "GPU_ERROR: cudaMalloc failed!\n");
         exit(1);
+    }
+}
+
+void UPGMA::readFile(UPGMA::ReadDistMat* readDistMat) {
+    int i = 0;
+    int j = 0;
+    std::ifstream infile("distMat.txt");
+    std::string line;
+    while (std::getline(infile, line)) {
+        j = 0;
+        std::istringstream iss(line);
+        std::string token;
+        while (std::getline(iss, token, ',')) {
+            if (token != "") { // Skip empty tokens
+                readDistMat->distMat[getIndex(readDistMat->mat_dim, i, j)] = std::stoi(token);
+                j++;
+            }
+        }
+        i++;
     }
 }
 
@@ -169,212 +186,225 @@ __global__ void buildUpgma(
     // int gs = gridDim.x;
     // int bs = blockDim.x;	
 
-    printf("Starting buildUPGMA kernel\n");
+    // printf("Starting buildUPGMA kernel\n");
     
-    d_distMat[getIndexDev(mat_dim,tx,bx)] += 100;
-
-    // if (tx == 0 && bx == 0) {
-    //     //1. mirrorDistMat(MATDIM);
-	//     //void mirrorDistMat(int size) {
-    //     printf("Starting buildUPGMA kernel\n");
-    //     int *minLoc;
-	//     int greaterCombLoc;
-    //     for (int itr1_i = 0; itr1_i < mat_dim; itr1_i++) {
-    //         for (int itr1_j = 0; itr1_j < itr1_i; itr1_j++)
-    //             d_distMat[getIndexDev(mat_dim,itr1_j,itr1_i)] = d_distMat[getIndexDev(mat_dim,itr1_i,itr1_j)];
-    //     }
-    //     //}
-
-    //     //2. initClusterLst(mat_dim);
-    //     //void initClusterLst(int size) {
-    //     for (int itr2_i = 0; itr2_i < mat_dim; itr2_i++) {
-    //         for (int itr2_j = 0; itr2_j < mat_dim; itr2_j++) {
-    //             d_clusterLst[getIndexDev(mat_dim,itr2_i,itr2_j)] = (itr2_j) ? -1 : itr2_i;
-    //         }
-    //     }
-    //     //}
-
-    //     //initd_opMat(mat_dim);
-    //     //void initd_opMat(int size) {
-    //     for (int itr3_i = 0; itr3_i < mat_dim; itr3_i++) {
-    //         for (int itr3_j = 0; itr3_j < mat_dim; itr3_j++)
-    //             d_opMat[getIndexDev(mat_dim,itr3_i,itr3_j)] = d_distMat[getIndexDev(mat_dim,itr3_i,itr3_j)]*1000;
-    //     }
-    //     //}
-
-    //     // printd_opMat(mat_dim);
-
-    //     for (int k = 0; k < mat_dim-2; k++) {
-    //         //minLoc = matMinLoc(mat_dim);
-    //         //int *matMinLoc(int size) {
-    //         int itr4_min = __INT32_MAX__;
-    //         int itr4_min_loc[2];
-    //         for (int itr4_i = 0; itr4_i < mat_dim; itr4_i++) {
-    //             for (int itr4_j = 0; itr4_j < mat_dim; itr4_j++) {
-    //                 if (d_opMat[getIndexDev(mat_dim,itr4_i,itr4_j)] < itr4_min && d_opMat[getIndexDev(mat_dim,itr4_i,itr4_j)] != 0) {
-    //                     itr4_min = d_opMat[getIndexDev(mat_dim,itr4_i,itr4_j)];
-    //                     itr4_min_loc[0] = itr4_i;
-    //                     itr4_min_loc[1] = itr4_j;
-    //                 }
-    //             }
-    //         }
-    //         minLoc = itr4_min_loc;
-    //         //}
-    //         printf("Minx %d, Miny %d\n", minLoc[0], minLoc[1]);
-    //         //greaterCombLoc = arrMax(minLoc, 2);
-    //         //int arrMax(int d[mat_dim], int size) {
-    //         int itr5_arr_max = 0;
-    //         for (int itr5_i = 0; itr5_i < 2; itr5_i++)
-    //             if (minLoc[itr5_i] > itr5_arr_max)
-    //                 itr5_arr_max = minLoc[itr5_i];
-    //         //return itr5_arr_max;
-    //         greaterCombLoc = itr5_arr_max;
-    //         //}
-
-    //         //grpLeaf(mat_dim, minLoc[0], minLoc[1]);
-    //         //void grpLeaf(int size, int ele1, int ele2) {
-    //         int *itr6_cluster_locs;
-    //         //itr6_cluster_locs = findCluster(mat_dim, minLoc[0], minLoc[1]);
-    //         //int *findCluster(int size, int ele1, int ele2) {
-    //         int itr7_cluster_locs[2];
-    //         int itr7_find_count = 0;
-    //         int itr7_return_flag = 0;
-    //         for (int itr7_i = 0; itr7_i < mat_dim; itr7_i++) {
-    //             for (int itr7_j = 0; itr7_j < mat_dim; itr7_j++) {
-    //                 if (minLoc[0] == d_clusterLst[getIndexDev(mat_dim,itr7_i,itr7_j)]) {
-    //                     itr7_cluster_locs[0] = itr7_i;
-    //                     itr7_find_count++;
-    //                 } else if (minLoc[1] == d_clusterLst[getIndexDev(mat_dim,itr7_i,itr7_j)]) {
-    //                     itr7_cluster_locs[1] = itr7_i;
-    //                     itr7_find_count++;
-    //                 }
-
-    //                 if (itr7_find_count == 2) {
-    //                     //return itr7_cluster_locs;
-    //                     itr6_cluster_locs = itr7_cluster_locs;
-    //                     itr7_return_flag = 1;
-    //                     break;
-    //                 }
-    //             }
-    //             if(itr7_return_flag == 1) {
-    //                 break;
-    //             }
-    //         }
-
-    //         //return itr7_cluster_locs;
-    //         if(itr7_return_flag == 0 ) {
-    //             itr6_cluster_locs = itr7_cluster_locs;
-    //         }
-    //         //}
-
-    //         if (itr6_cluster_locs[0] != itr6_cluster_locs[1]) {
-    //             int itr6_j;
-    //             for (itr6_j = 0; itr6_j < mat_dim; itr6_j++) {
-    //                 if (d_clusterLst[getIndexDev(mat_dim,itr6_cluster_locs[0],itr6_j)] == -1)
-    //                     break;  
-    //             }
-    //             for (int itr6_k = 0; itr6_k < mat_dim; itr6_k++) {
-    //                 int itr6_ele = d_clusterLst[getIndexDev(mat_dim,itr6_cluster_locs[1],itr6_k)];
-    //                 if (itr6_ele == -1)
-    //                     break;
-    //                 d_clusterLst[getIndexDev(mat_dim,itr6_cluster_locs[0],itr6_j)] = itr6_ele;
-    //                 d_clusterLst[getIndexDev(mat_dim,itr6_cluster_locs[1],itr6_k)] = -1;
-    //                 itr6_j++;
-    //             }
-    //         } 
-    //         //}
-
-    //         for (int i = 0; i < mat_dim; i++) {
-    //             for (int j = 0; j < mat_dim; j++) {
-    //                 if (d_opMat[getIndexDev(mat_dim,i,j)] != 0) {
-    //                     bool itr8_condition0 = false ;
-    //                     bool itr8_condition1 = false ;
-    //                     //int isEleInArr (int minLoc[mat_dim], int 2, int i) {
-    //                     for (int itr8_i = 0; itr8_i < 2; itr8_i++)
-    //                         if (i == minLoc[itr8_i])
-    //                             //return 1;
-    //                             itr8_condition0 = true;
-    //                     //}
-    //                     for (int itr8_i = 0; itr8_i < 2; itr8_i++)
-    //                         if (j == minLoc[itr8_i])
-    //                             //return 1;
-    //                             itr8_condition1 = true;
-    //                     //}
-    //                     //if (isEleInArr(minLoc, 2, i) || isEleInArr(minLoc, 2, j)) {
-    //                     if ( itr8_condition0 || itr8_condition1 ) {
-    //                         if (i == greaterCombLoc || j == greaterCombLoc)
-    //                             d_opMat[getIndexDev(mat_dim,i,j)] = 0;
-    //                         else
-    //                             if (i != j) {
-    //                                 //matEntryUpdate(mat_dim, i, j);
-    //                                 //void matEntryUpdate(int size, int ele1, int ele2) {
-    //                                 int *itr9_cluster_loc;
-    //                                 //itr9_cluster_loc = findCluster(mat_dim, i, j);
-    //                                 //int *findCluster(int size, int ele1, int ele2) {
-    //                                 int itr10_cluster_locs[2];
-    //                                 int itr10_find_count = 0;
-    //                                 int itr10_return_flag = 0;
-    //                                 for (int itr10_i = 0; itr10_i < mat_dim; itr10_i++) {
-    //                                     for (int itr10_j = 0; itr10_j < mat_dim; itr10_j++) {
-    //                                         if (i == d_clusterLst[getIndexDev(mat_dim,itr10_i,itr10_j)]) {
-    //                                             itr10_cluster_locs[0] = itr10_i;
-    //                                             itr10_find_count++;
-    //                                         } else if (j == d_clusterLst[getIndexDev(mat_dim,itr10_i,itr10_j)]) {
-    //                                             itr10_cluster_locs[1] = itr10_i;
-    //                                             itr10_find_count++;
-    //                                         }
-
-    //                                         if (itr10_find_count == 2) {
-    //                                             //return itr10_cluster_locs;
-    //                                             itr10_return_flag = 1;
-    //                                             itr9_cluster_loc = itr10_cluster_locs;
-    //                                             break;
-    //                                         }
-    //                                     }
-    //                                     if( itr10_return_flag == 1 ) {
-    //                                         break;
-    //                                     }
-    //                                 }
-
-    //                                 //return itr10_cluster_locs;
-    //                                 if( itr10_return_flag == 0 ) {
-    //                                     itr9_cluster_loc = itr10_cluster_locs;
-    //                                 }
-    //                                 //}
-    //                                 int itr9_distSum = 0;
-    //                                 int itr9_distCount = 0;
-    //                                 int itr9_e1_itr = 0;
-    //                                 int itr9_e2_itr = 0;  
-
-    //                                 while (d_clusterLst[getIndexDev(mat_dim,itr9_cluster_loc[0],itr9_e1_itr)] != -1) {
-    //                                     itr9_e2_itr = 0;
-    //                                     while (d_clusterLst[getIndexDev(mat_dim,itr9_cluster_loc[1],itr9_e2_itr)] != -1) {
-    //                                         itr9_distSum += d_distMat[getIndexDev(mat_dim, d_clusterLst[getIndexDev(mat_dim, itr9_cluster_loc[0], itr9_e1_itr)], d_clusterLst[getIndexDev(mat_dim, itr9_cluster_loc[1], itr9_e2_itr)])];
-    //                                         itr9_distCount++;
-    //                                         itr9_e2_itr++;
-    //                                     }
-    //                                     itr9_e1_itr++;
-    //                                 }
-
-    //                                 d_opMat[getIndexDev(mat_dim,i,j)] = itr9_distSum/itr9_distCount;
-    //                                 //}
-    //                             }
-    //                     }
-    //             }
-    //             }
-    //         }
-    //         // printClusterLst(mat_dim);
-    //         // printOpMat(mat_dim);
-    //     }
+    // for (int i = 0; i < 1000; i++){
+    //     10+20;
     // }
+
+    // d_distMat[getIndexDev(mat_dim,tx,bx)] += 100;
+
+    if (tx == 0 && bx == 0) {
+        //1. mirrorDistMat(MATDIM);
+	    //void mirrorDistMat(int size) {
+        printf("Starting buildUPGMA kernel\n");
+        int *minLoc;
+	    int greaterCombLoc;
+        for (int itr1_i = 0; itr1_i < mat_dim; itr1_i++) {
+            for (int itr1_j = 0; itr1_j < itr1_i; itr1_j++)
+                d_distMat[getIndexDev(mat_dim,itr1_j,itr1_i)] = d_distMat[getIndexDev(mat_dim,itr1_i,itr1_j)];
+        }
+        //}
+
+        //2. initClusterLst(mat_dim);
+        //void initClusterLst(int size) {
+        for (int itr2_i = 0; itr2_i < mat_dim; itr2_i++) {
+            for (int itr2_j = 0; itr2_j < mat_dim; itr2_j++) {
+                d_clusterLst[getIndexDev(mat_dim,itr2_i,itr2_j)] = (itr2_j) ? -1 : itr2_i;
+            }
+        }
+        //}
+
+        //initd_opMat(mat_dim);
+        //void initd_opMat(int size) {
+        for (int itr3_i = 0; itr3_i < mat_dim; itr3_i++) {
+            for (int itr3_j = 0; itr3_j < mat_dim; itr3_j++)
+                d_opMat[getIndexDev(mat_dim,itr3_i,itr3_j)] = d_distMat[getIndexDev(mat_dim,itr3_i,itr3_j)]*1000;
+        }
+        //}
+
+        // printd_opMat(mat_dim);
+
+        for (int k = 0; k < mat_dim-2; k++) {
+            //minLoc = matMinLoc(mat_dim);
+            //int *matMinLoc(int size) {
+            int itr4_min = __INT32_MAX__;
+            int itr4_min_loc[2];
+            for (int itr4_i = 0; itr4_i < mat_dim; itr4_i++) {
+                for (int itr4_j = 0; itr4_j < mat_dim; itr4_j++) {
+                    if (d_opMat[getIndexDev(mat_dim,itr4_i,itr4_j)] < itr4_min && d_opMat[getIndexDev(mat_dim,itr4_i,itr4_j)] != 0) {
+                        itr4_min = d_opMat[getIndexDev(mat_dim,itr4_i,itr4_j)];
+                        itr4_min_loc[0] = itr4_i;
+                        itr4_min_loc[1] = itr4_j;
+                    }
+                }
+            }
+            minLoc = itr4_min_loc;
+            //}
+            printf("Minx %d, Miny %d\n", minLoc[0], minLoc[1]);
+            //greaterCombLoc = arrMax(minLoc, 2);
+            //int arrMax(int d[mat_dim], int size) {
+            int itr5_arr_max = 0;
+            for (int itr5_i = 0; itr5_i < 2; itr5_i++)
+                if (minLoc[itr5_i] > itr5_arr_max)
+                    itr5_arr_max = minLoc[itr5_i];
+            //return itr5_arr_max;
+            greaterCombLoc = itr5_arr_max;
+            //}
+
+            //grpLeaf(mat_dim, minLoc[0], minLoc[1]);
+            //void grpLeaf(int size, int ele1, int ele2) {
+            int *itr6_cluster_locs;
+            //itr6_cluster_locs = findCluster(mat_dim, minLoc[0], minLoc[1]);
+            //int *findCluster(int size, int ele1, int ele2) {
+            int itr7_cluster_locs[2];
+            int itr7_find_count = 0;
+            int itr7_return_flag = 0;
+            for (int itr7_i = 0; itr7_i < mat_dim; itr7_i++) {
+                for (int itr7_j = 0; itr7_j < mat_dim; itr7_j++) {
+                    if (minLoc[0] == d_clusterLst[getIndexDev(mat_dim,itr7_i,itr7_j)]) {
+                        itr7_cluster_locs[0] = itr7_i;
+                        itr7_find_count++;
+                    } else if (minLoc[1] == d_clusterLst[getIndexDev(mat_dim,itr7_i,itr7_j)]) {
+                        itr7_cluster_locs[1] = itr7_i;
+                        itr7_find_count++;
+                    }
+
+                    if (itr7_find_count == 2) {
+                        //return itr7_cluster_locs;
+                        itr6_cluster_locs = itr7_cluster_locs;
+                        itr7_return_flag = 1;
+                        break;
+                    }
+                }
+                if(itr7_return_flag == 1) {
+                    break;
+                }
+            }
+
+            //return itr7_cluster_locs;
+            if(itr7_return_flag == 0 ) {
+                itr6_cluster_locs = itr7_cluster_locs;
+            }
+            //}
+
+            if (itr6_cluster_locs[0] != itr6_cluster_locs[1]) {
+                int itr6_j;
+                for (itr6_j = 0; itr6_j < mat_dim; itr6_j++) {
+                    if (d_clusterLst[getIndexDev(mat_dim,itr6_cluster_locs[0],itr6_j)] == -1)
+                        break;  
+                }
+                for (int itr6_k = 0; itr6_k < mat_dim; itr6_k++) {
+                    int itr6_ele = d_clusterLst[getIndexDev(mat_dim,itr6_cluster_locs[1],itr6_k)];
+                    if (itr6_ele == -1)
+                        break;
+                    d_clusterLst[getIndexDev(mat_dim,itr6_cluster_locs[0],itr6_j)] = itr6_ele;
+                    d_clusterLst[getIndexDev(mat_dim,itr6_cluster_locs[1],itr6_k)] = -1;
+                    itr6_j++;
+                }
+            } 
+            //}
+
+            for (int i = 0; i < mat_dim; i++) {
+                for (int j = 0; j < mat_dim; j++) {
+                    if (d_opMat[getIndexDev(mat_dim,i,j)] != 0) {
+                        bool itr8_condition0 = false ;
+                        bool itr8_condition1 = false ;
+                        //int isEleInArr (int minLoc[mat_dim], int 2, int i) {
+                        for (int itr8_i = 0; itr8_i < 2; itr8_i++)
+                            if (i == minLoc[itr8_i])
+                                //return 1;
+                                itr8_condition0 = true;
+                        //}
+                        for (int itr8_i = 0; itr8_i < 2; itr8_i++)
+                            if (j == minLoc[itr8_i])
+                                //return 1;
+                                itr8_condition1 = true;
+                        //}
+                        //if (isEleInArr(minLoc, 2, i) || isEleInArr(minLoc, 2, j)) {
+                        if ( itr8_condition0 || itr8_condition1 ) {
+                            if (i == greaterCombLoc || j == greaterCombLoc)
+                                d_opMat[getIndexDev(mat_dim,i,j)] = 0;
+                            else
+                                if (i != j) {
+                                    //matEntryUpdate(mat_dim, i, j);
+                                    //void matEntryUpdate(int size, int ele1, int ele2) {
+                                    int *itr9_cluster_loc;
+                                    //itr9_cluster_loc = findCluster(mat_dim, i, j);
+                                    //int *findCluster(int size, int ele1, int ele2) {
+                                    int itr10_cluster_locs[2];
+                                    int itr10_find_count = 0;
+                                    int itr10_return_flag = 0;
+                                    for (int itr10_i = 0; itr10_i < mat_dim; itr10_i++) {
+                                        for (int itr10_j = 0; itr10_j < mat_dim; itr10_j++) {
+                                            if (i == d_clusterLst[getIndexDev(mat_dim,itr10_i,itr10_j)]) {
+                                                itr10_cluster_locs[0] = itr10_i;
+                                                itr10_find_count++;
+                                            } else if (j == d_clusterLst[getIndexDev(mat_dim,itr10_i,itr10_j)]) {
+                                                itr10_cluster_locs[1] = itr10_i;
+                                                itr10_find_count++;
+                                            }
+
+                                            if (itr10_find_count == 2) {
+                                                //return itr10_cluster_locs;
+                                                itr10_return_flag = 1;
+                                                itr9_cluster_loc = itr10_cluster_locs;
+                                                break;
+                                            }
+                                        }
+                                        if( itr10_return_flag == 1 ) {
+                                            break;
+                                        }
+                                    }
+
+                                    //return itr10_cluster_locs;
+                                    if( itr10_return_flag == 0 ) {
+                                        itr9_cluster_loc = itr10_cluster_locs;
+                                    }
+                                    //}
+                                    int itr9_distSum = 0;
+                                    int itr9_distCount = 0;
+                                    int itr9_e1_itr = 0;
+                                    int itr9_e2_itr = 0;  
+
+                                    while (d_clusterLst[getIndexDev(mat_dim,itr9_cluster_loc[0],itr9_e1_itr)] != -1) {
+                                        itr9_e2_itr = 0;
+                                        while (d_clusterLst[getIndexDev(mat_dim,itr9_cluster_loc[1],itr9_e2_itr)] != -1) {
+                                            itr9_distSum += d_distMat[getIndexDev(mat_dim, d_clusterLst[getIndexDev(mat_dim, itr9_cluster_loc[0], itr9_e1_itr)], d_clusterLst[getIndexDev(mat_dim, itr9_cluster_loc[1], itr9_e2_itr)])];
+                                            itr9_distCount++;
+                                            itr9_e2_itr++;
+                                        }
+                                        itr9_e1_itr++;
+                                    }
+
+                                    d_opMat[getIndexDev(mat_dim,i,j)] = itr9_distSum/itr9_distCount;
+                                    //}
+                                }
+                        }
+                }
+                }
+            }
+            // printClusterLst(mat_dim);
+            // printOpMat(mat_dim);
+        }
+    }
 }
 
 void UPGMA::upgmaBuilder (UPGMA::ReadDistMat* readDistMat) {
 
+    printf("upgmaBuilder invoked\n");
     int numBlocks = 1; // i.e. number of thread blocks on the GPU
     int blockSize = 8;  // i.e. number of GPU threads per thread block
 
     buildUpgma<<<numBlocks, blockSize>>>(readDistMat->mat_dim, readDistMat->d_distMat, readDistMat->d_opMat, readDistMat->d_clusterLst);    
+
+    cudaError_t err;
+    
+    err = cudaMemcpy(readDistMat->distMat, readDistMat->d_distMat, readDistMat->mat_dim*readDistMat->mat_dim*sizeof(uint32_t), cudaMemcpyDeviceToHost);
+    if (err != cudaSuccess) {
+        fprintf(stderr, "GPU_ERROR: cudaMemCpy failed!\n");
+        exit(1);
+    }
 
     cudaDeviceSynchronize();
 }
