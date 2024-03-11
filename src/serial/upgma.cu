@@ -439,7 +439,7 @@ __global__ void buildUpgma(
 	}
 }
 
-void UPGMA::upgmaBuilder (UPGMA::ReadDistMat* readDistMat) {
+void UPGMA::upgmaBuilder(UPGMA::ReadDistMat *readDistMat) {
 
 	printf("upgmaBuilder invoked\n");
 	int numBlocks = 1; // i.e. number of thread blocks on the GPU
@@ -456,4 +456,23 @@ void UPGMA::upgmaBuilder (UPGMA::ReadDistMat* readDistMat) {
 	}
 
 	cudaDeviceSynchronize();
+=======
+  printf("upgmaBuilder invoked\n");
+  int numBlocks = 7; // i.e. number of thread blocks on the GPU
+  int blockSize = 7; // i.e. number of GPU threads per thread block
+
+  buildUpgma<<<numBlocks, blockSize>>>(
+      readDistMat->mat_dim, readDistMat->d_distMat, readDistMat->d_opMat,
+      readDistMat->d_clusterLst);
+
+  cudaError_t err;
+
+  err =
+      cudaMemcpy(readDistMat->distMat, readDistMat->d_distMat,
+                 readDistMat->mat_dim * readDistMat->mat_dim * sizeof(uint32_t),
+                 cudaMemcpyDeviceToHost);
+  if (err != cudaSuccess) {
+    fprintf(stderr, "GPU_ERROR: cudaMemCpy failed!\n");
+    exit(1);
+  }
 }
