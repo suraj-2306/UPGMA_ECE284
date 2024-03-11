@@ -230,6 +230,7 @@ __global__ void buildUpgma(uint32_t mat_dim, uint32_t *d_distMat,
   }
   //}
 
+  __syncthreads(); 
   // 2. initClusterLst(mat_dim);
   // void initClusterLst(int size) {
   // for (int itr2_i = 0; itr2_i < mat_dim; itr2_i++) {
@@ -243,6 +244,7 @@ __global__ void buildUpgma(uint32_t mat_dim, uint32_t *d_distMat,
   }
   //}
 
+  __syncthreads(); 
   // initd_opMat(mat_dim);
   // void initd_opMat(int size) {
   // for (int itr3_i = 0; itr3_i < mat_dim; itr3_i++) {
@@ -253,6 +255,7 @@ __global__ void buildUpgma(uint32_t mat_dim, uint32_t *d_distMat,
   if (tx < mat_dim && bx < mat_dim) {
     d_opMat[getIndexDev(mat_dim, tx, bx)] = d_distMat[getIndexDev(mat_dim, tx, bx)] * 1000;
   }
+  __syncthreads(); 
   //}
   if (tx == 0 && bx == 0) {
 
