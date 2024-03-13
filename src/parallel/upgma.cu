@@ -74,7 +74,7 @@ void UPGMA::readFile(UPGMA::ReadDistMat *readDistMat) {
 
 	printf("Reading from file\n");
 
-	std::string filename = "./../src/serial/distMat.csv";
+	std::string filename = "./distMat.csv";
 	std::ifstream file(filename);
 	std::string line;
 
