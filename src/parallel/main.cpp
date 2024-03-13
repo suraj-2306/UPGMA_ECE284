@@ -26,9 +26,9 @@ int main(int argc, char** argv) {
 
     UPGMA::upgmaBuilder(readDistMat);
 
-    //UPGMA::printDistMat(readDistMat);
+    UPGMA::printDistMat(readDistMat);
 
-    //UPGMA::printOpMat(readDistMat);
+    UPGMA::printOpMat(readDistMat);
 
     UPGMA::clearDistMat(readDistMat);
 

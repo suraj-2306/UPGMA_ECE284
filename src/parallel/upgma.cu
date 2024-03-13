@@ -68,13 +68,19 @@ UPGMA::ReadDistMat::ReadDistMat(uint32_t size) {
 		fprintf(stderr, "GPU_ERROR: cudaMalloc failed!\n");
 		exit(1);
 	}
+
+	err = cudaMalloc(&d_optMat_min_locs, mat_dim * mat_dim * sizeof(uint32_t));
+	if (err != cudaSuccess) {
+		fprintf(stderr, "GPU_ERROR: cudaMalloc failed!\n");
+		exit(1);
+	}
 }
 
 void UPGMA::readFile(UPGMA::ReadDistMat *readDistMat) {
 
 	printf("Reading from file\n");
 
-	std::string filename = "./distMat.csv";
+	std::string filename = "../src/parallel/distMat.csv";
 	std::ifstream file(filename);
 	std::string line;
 
@@ -326,22 +332,24 @@ __global__ void buildUpgma(uint32_t mat_dim, uint32_t *d_distMat,
 
 		for( int tb = thread_start; tb <= thread_end; tb++) {
 			if(d_opMat[tb] > 0 ) {
-				d_optMat_min[tb] = d_opMat[tb];
+				d_optMat_min[tb] = d_opMat[tb];				
 			}
 			else {
 				d_optMat_min[tb] = __INT32_MAX__;
 			}
+			d_optMat_min_locs[tb] = tb;
 		}
 
 		__syncthreads();
 
 		for(int sp_run = 0; sp_run < SERIAL_PREFIX_RUNS+1; sp_run++)
 		{
-			int sp_off = sp_run * 2 * PHANTOM_BS;
+			int sp_off = sp_run * 2 * PHANTOM_BS; // 9 -> tx+ spoff = 9216
 			for(int s = PHANTOM_BS; s>0; s=s/2) {
 				if(tx < s && tx+s+sp_off < MATDIM*MATDIM) {
 					if(d_optMat_min[tx+s+sp_off] < d_optMat_min[tx + sp_off]) {
 						d_optMat_min[tx + sp_off] = d_optMat_min[tx + s + sp_off];
+						d_optMat_min_locs[tx + sp_off] = d_optMat_min_locs[tx + s + sp_off];
 						min_locs[tx][0] = (tx+s+sp_off)/mat_dim;
 						min_locs[tx][1] = (tx+s+sp_off)%mat_dim;
 					}
@@ -353,12 +361,15 @@ __global__ void buildUpgma(uint32_t mat_dim, uint32_t *d_distMat,
 				}
 				__syncthreads();
 			}
-			min_locs_min[sp_run][0] = min_locs[0][0];
-			min_locs_min[sp_run][1] = min_locs[0][1];	
+			// min_locs_min[sp_run][0] = min_locs[0][0];
+			// min_locs_min[sp_run][1] = min_locs[0][1];
+
 			if(d_optMat_min[sp_off] < min_dist ) {
 				min_dist = d_optMat_min[sp_off];
-				minLoc[0] = min_locs_min[sp_run][0];
-				minLoc[1] = min_locs_min[sp_run][1];
+				minLoc[0] = d_optMat_min_locs[sp_off];
+				minLoc[1] = d_optMat_min_locs[sp_off];
+				// minLoc[0] = min_locs_min[sp_run][0];
+				// minLoc[1] = min_locs_min[sp_run][1];
 			}
 		}
 		__syncthreads();

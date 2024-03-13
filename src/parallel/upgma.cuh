@@ -22,7 +22,8 @@ namespace UPGMA {
         uint32_t* d_distMat;
         uint32_t* d_opMat;
         int* d_clusterLst;
-	int* d_optMat_min;
+	    int* d_optMat_min;
+        int* d_optMat_min_locs;
 
         ReadDistMat(uint32_t size);
     };    
