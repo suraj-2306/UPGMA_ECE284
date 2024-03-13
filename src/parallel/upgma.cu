@@ -213,7 +213,7 @@ __device__ uint32_t getIndexDev(uint32_t numCols, uint32_t i, uint32_t j) {
 #define PHANTOM_BS static_cast<int>((pow(2, static_cast<int>(log2f(READ_MAP_BLOCK_SIZE))) >= 1024 ? 512 : pow(2, static_cast<int>(log2f(READ_MAP_BLOCK_SIZE)))))
 #define SERIAL_PREFIX_RUNS (int)(MATDIM*MATDIM / (2 * PHANTOM_BS))
 __global__ void buildUpgma(uint32_t mat_dim, uint32_t *d_distMat,
-		uint32_t *d_opMat, int *d_clusterLst, int *d_optMat_min) {
+		uint32_t *d_opMat, int *d_clusterLst, int *d_optMat_min, int *d_optMat_min_locs) {
 
 	int tx = threadIdx.x;
 	int bx = blockIdx.x;
@@ -366,8 +366,8 @@ __global__ void buildUpgma(uint32_t mat_dim, uint32_t *d_distMat,
 
 			if(d_optMat_min[sp_off] < min_dist ) {
 				min_dist = d_optMat_min[sp_off];
-				minLoc[0] = d_optMat_min_locs[sp_off];
-				minLoc[1] = d_optMat_min_locs[sp_off];
+				minLoc[0] = d_optMat_min_locs[sp_off]/mat_dim;
+				minLoc[1] = d_optMat_min_locs[sp_off]%mat_dim;
 				// minLoc[0] = min_locs_min[sp_run][0];
 				// minLoc[1] = min_locs_min[sp_run][1];
 			}
@@ -537,12 +537,11 @@ __global__ void buildUpgma(uint32_t mat_dim, uint32_t *d_distMat,
 
 		buildUpgma<<<numBlocks, blockSize>>>(
 				readDistMat->mat_dim, readDistMat->d_distMat, readDistMat->d_opMat,
-				readDistMat->d_clusterLst, readDistMat->d_optMat_min);
+				readDistMat->d_clusterLst, readDistMat->d_optMat_min, readDistMat->d_optMat_min_locs);
 
 		cudaError_t err;
 
-		err =
-			cudaMemcpy(readDistMat->distMat, readDistMat->d_distMat,
+		err = cudaMemcpy(readDistMat->distMat, readDistMat->d_distMat,
 					readDistMat->mat_dim * readDistMat->mat_dim * sizeof(uint32_t),
 					cudaMemcpyDeviceToHost);
 		if (err != cudaSuccess) {
